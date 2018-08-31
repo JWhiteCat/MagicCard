@@ -10,7 +10,9 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Slate",
-				"SlateCore"
+				"SlateCore",
+				"UMG",
+				"Engine"
 			]
 		}
 	]
