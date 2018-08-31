@@ -2,8 +2,10 @@
 
 #include "PVE.h"
 #include "Engine/Engine.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFrameWork/Actor.h"
+#include "CustomHUD.h"
 
 #include "Button.h"
 #include "UObject/ConstructorHelpers.h"
@@ -56,19 +58,42 @@ bool UPVE::Initialize()
 void UPVE::Tick(FGeometry MyGeometry, float InDeltaTime)
 {
 	Super::Tick(MyGeometry, InDeltaTime);
+
+	
 }
 
 
+/*
+bool UPVE::RandomFunc(UObject* WorldContexObject)
+{
+	UWorld * World = GEngine->GetWorldFromContextObject(WorldContexObject);
+
+
+	FTimerHandle TestHandel;
+	
+	World->GetTimerManager().SetTimer(TestHandel, &UPVE::UpdatePushPlayCardButton, 10.0f, false);
+}
+*/
 
 void UPVE::FSMUpdate()
 {
+	UE_LOG(LogTemp, Warning, TEXT("CurrentClickNumberC == %d"), CurrentClickNumberC);
+	UE_LOG(LogTemp, Warning, TEXT("time = %f"), time);
 
-	UpdateSelectCard();
-
-	FTimerHandle TestHandel;
-	//GetWorld()->GetTimerManager().SetTimer(TestHandel, &UPVE::UpdatePushPlayCardButton, 10.0f, false);
-
-	//GetWorld()->GetTimerManager().ClearTimer(TestHandel);
+	switch (CurrentState)
+	{
+	case UPVE::Wait:
+		UpdateWait();
+		break;
+	case UPVE::SelectCard:
+		UpdateSelectCard();
+		break;
+	case UPVE::PushPlayCardButton:
+		UpdatePushPlayCardButton();
+		break;
+	default:
+		break;
+	}
 
 	
 }
@@ -79,22 +104,51 @@ void UPVE::UpdateSelectCard()
 
 	if (CurrentClickNumberC == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CurrentClickNumberC == 0"));
+		
 		Card1->OnClicked.Broadcast();
-
-		isPlay = true;
 	}
-	else
+
+
+	//double FTime = FPlatformTime::Seconds();
+	
+
+	//ÑÓÊ±
+	if (Delay())
+	{		
+		CurrentState = FSMState::PushPlayCardButton;
+	}
+	
+
+}
+
+void UPVE::UpdatePushPlayCardButton()
+{
+		PlayCard->OnClicked.Broadcast();
+
+		CurrentState = FSMState::Wait;
+}
+
+void UPVE::UpdateWait()
+{
+	if (!CurrentPlayerC)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CurrentClickNumberC == ?"));
+		CurrentState = FSMState::SelectCard;
 	}
 }
 
-void UPVE::UpdatePushPlayCardButton(bool isPlay)
+
+//ÑÓÊ±Æ÷
+bool UPVE::Delay(float DelayTime /*= 1500.0f*/)
 {
-	if (isPlay)
+	if (time < DelayTime)
 	{
-		PlayCard->OnClicked.Broadcast();
+		time += 10.0f;
+		return false;
+	}
+	else
+	{
+		time = 0.0f;
+		return true;
 	}
 }
 

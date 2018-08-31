@@ -17,11 +17,5 @@ class MAGICCARDS_API ACustomHUD : public AHUD
 public:
 	ACustomHUD();
 
-	class UPVE* PVE;
-	TSubclassOf<class UUserWidget> PVEClass;
-
-	/*
-	class UMainMenuC* MainMenuC;
-	TSubclassOf<class UUserWidget> MainMenuC;
-	*/
+	//static UWorld * World;
 };

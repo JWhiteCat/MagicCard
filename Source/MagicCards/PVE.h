@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PVE.generated.h"
 
+
 /**
  *
  */
@@ -20,6 +21,8 @@ public:
 
 	virtual void Tick(FGeometry MyGeometry, float InDeltaTime);
 	
+	//UFUNCTION(BlueprintCallable, Category = "Misc", meta = (WorldContextObject))
+	//static bool RandomFunc(UObject* WorldContexObject);
 
 public:
 
@@ -37,14 +40,39 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Code")
 	int32 CurrentClickNumberC = 0;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Code")
+	bool CurrentPlayerC = true;
+	
+
+	//bool isPlay = false;
+
+	float time = 0.0f;
+	float DelayTime = 1500.0f;
+
+
+
+public:
+
+	enum FSMState
+	{
+		Wait,
+		SelectCard,
+		PushPlayCardButton,
+	};
+
+	FSMState CurrentState = FSMState::Wait;
+
+
 	UFUNCTION(BlueprintCallable, Category = "Code")
 	void FSMUpdate();
 
 	void UpdateSelectCard();
 
-	void UpdatePushPlayCardButton(bool isPlay);
+	void UpdatePushPlayCardButton();
 
-	bool isPlay = false;
+	void UpdateWait();
+
+	bool Delay(float DelayTime = 1500.0f);
 	/*获取蓝图中的变量
 	class UPVE* PVE;
 	TSubclassOf<class UUserWidget> PVEClass;
