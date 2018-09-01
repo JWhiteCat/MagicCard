@@ -2,8 +2,10 @@
 
 #include "PVE.h"
 #include "Engine/Engine.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFrameWork/Actor.h"
+#include "CustomHUD.h"
 
 #include "Button.h"
 #include "UObject/ConstructorHelpers.h"
@@ -56,45 +58,167 @@ bool UPVE::Initialize()
 void UPVE::Tick(FGeometry MyGeometry, float InDeltaTime)
 {
 	Super::Tick(MyGeometry, InDeltaTime);
+
+	
 }
 
 
+/*
+bool UPVE::RandomFunc(UObject* WorldContexObject)
+{
+	UWorld * World = GEngine->GetWorldFromContextObject(WorldContexObject);
+
+
+	FTimerHandle TestHandel;
+	
+	World->GetTimerManager().SetTimer(TestHandel, &UPVE::UpdatePushPlayCardButton, 10.0f, false);
+}
+*/
 
 void UPVE::FSMUpdate()
 {
+	UE_LOG(LogTemp, Warning, TEXT("CurrentClickNumberC == %d"), CurrentClickNumberC);
+	UE_LOG(LogTemp, Warning, TEXT("time = %f"), time);
 
-	UpdateSelectCard();
-
-	FTimerHandle TestHandel;
-	//GetWorld()->GetTimerManager().SetTimer(TestHandel, &UPVE::UpdatePushPlayCardButton, 10.0f, false);
-
-	//GetWorld()->GetTimerManager().ClearTimer(TestHandel);
+	switch (CurrentState)
+	{
+	case UPVE::Wait:
+		UpdateWait();
+		break;
+	case UPVE::SelectCard:
+		UpdateSelectCard();
+		break;
+	case UPVE::PushPlayCardButton:
+		UpdatePushPlayCardButton();
+		break;
+	default:
+		break;
+	}
 
 	
 }
 
 void UPVE::UpdateSelectCard()
 {
+
+	
+	//FName Card1ImageName = Card1->WidgetStyle.Normal.GetResourceName();
+
+
+	/*
+	if (Delay())
+	{
+	}
+	*/
+
+	switch (NextCardButton)
+	{
+	case 1:
+		Card1->OnClicked.Broadcast();
+		CurrentState = FSMState::PushPlayCardButton;
+
+		
+
+		break;
+	case 2:
+		Card2->OnClicked.Broadcast();
+		CurrentState = FSMState::PushPlayCardButton;
+
+		
+
+		break;
+	case 3:
+		Card3->OnClicked.Broadcast();
+		CurrentState = FSMState::PushPlayCardButton;
+
+		
+
+		break;
+	case 4:
+		Card4->OnClicked.Broadcast();
+		CurrentState = FSMState::PushPlayCardButton;
+
+		
+
+		break;
+	case 5:
+		Card5->OnClicked.Broadcast();
+		CurrentState = FSMState::PushPlayCardButton;
+
+		
+
+		break;
+	case 6:
+		Card6->OnClicked.Broadcast();
+		NextCardButton = 1;
+
+		
+
+		break;
+	default:
+		break;
+	}
 	
 
+	/*
 	if (CurrentClickNumberC == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CurrentClickNumberC == 0"));
+		
 		Card1->OnClicked.Broadcast();
-
-		isPlay = true;
 	}
+	*/
+
+	//double FTime = FPlatformTime::Seconds();
+	
+	//ÑÓÊ±
+
+	
+
+}
+
+void UPVE::UpdatePushPlayCardButton()
+{
+	if (Delay(1000))
+	{
+		PlayCard->OnClicked.Broadcast();
+	}
+		
+
+	if (CurrentPlayerC == false)
+	{
+		++NextCardButton;
+		CurrentState = FSMState::SelectCard;
+	}
+
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CurrentClickNumberC == ?"));
+		CurrentState = FSMState::Wait;
+	}
+		
+}
+
+void UPVE::UpdateWait()
+{
+	NextCardButton = 1;
+	if (!CurrentPlayerC)
+	{
+			CurrentState = FSMState::SelectCard;
 	}
 }
 
-void UPVE::UpdatePushPlayCardButton(bool isPlay)
+
+//ÑÓÊ±Æ÷
+bool UPVE::Delay(float DelayTime /*= 1500.0f*/)
 {
-	if (isPlay)
+	if (time < DelayTime)
 	{
-		PlayCard->OnClicked.Broadcast();
+		time += 10.0f;
+		return false;
+	}
+	else
+	{
+		time = 0.0f;
+		return true;
 	}
 }
 

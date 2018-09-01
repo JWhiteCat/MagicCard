@@ -37,14 +37,39 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Code")
 	int32 CurrentClickNumberC = 0;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Code")
+	bool CurrentPlayerC = false;
+
+
 	UFUNCTION(BlueprintCallable, Category = "Code")
 	void FSMUpdate();
 
 	void UpdateSelectCard();
 
-	void UpdatePushPlayCardButton(bool isPlay);
+	void UpdatePushPlayCardButton();
 
-	bool isPlay = false;
+	void UpdateWait();
+
+public:
+
+	float time = 0.0f;
+	int NextCardButton = 1;
+
+	enum FSMState
+	{
+		Wait,
+		SelectCard,
+
+		PushPlayCardButton,
+
+	};
+	FSMState CurrentState = FSMState::Wait;
+
+	
+
+
+	bool Delay(float DelayTime = 1500.0f);
+
 	/*获取蓝图中的变量
 	class UPVE* PVE;
 	TSubclassOf<class UUserWidget> PVEClass;
