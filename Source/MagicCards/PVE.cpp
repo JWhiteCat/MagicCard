@@ -25,8 +25,8 @@ bool UPVE::Initialize()
 	Card6 = Cast<UButton>(GetWidgetFromName("Card6"));
 
 	PlayCard = Cast<UButton>(GetWidgetFromName("PlayCard"));
-	
-	
+	DisCard = Cast<UButton>(GetWidgetFromName("DisCard"));
+	SwitchCard = Cast<UButton>(GetWidgetFromName("SwitchCard"));
 
 	/*获取蓝图中的变量
 	static ConstructorHelpers::FClassFinder<UUserWidget> PVEBP(TEXT("WidgetBlueprint'/Game/BluePrints/WBP_PVE.WBP_PVE_C'"));
@@ -75,10 +75,27 @@ bool UPVE::RandomFunc(UObject* WorldContexObject)
 }
 */
 
+//Finite State Machine
 void UPVE::FSMUpdate()
 {
-	UE_LOG(LogTemp, Warning, TEXT("CurrentClickNumberC == %d"), CurrentClickNumberC);
+
+	//UE_LOG(LogTemp, Warning, TEXT("CurrentClickNumberC == %d"), CurrentClickNumberC);
+
+	/*
 	UE_LOG(LogTemp, Warning, TEXT("time = %f"), time);
+	if (CurrentState == FSMState::Wait)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CurrentState is Wait"));
+	}
+	else if(CurrentState == FSMState::SelectCard)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CurrentState is SelecrCard"));
+	}
+	else if (CurrentState == FSMState::PushPlayCardButton)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CurrentState is PushPlayCardButton"));
+	}
+	*/
 
 	switch (CurrentState)
 	{
@@ -91,6 +108,12 @@ void UPVE::FSMUpdate()
 	case UPVE::PushPlayCardButton:
 		UpdatePushPlayCardButton();
 		break;
+	case UPVE::PushDisCardButton:
+		UpdatePushDisCardButton();
+		break;
+	case UPVE::PushSwitchCardButton:
+		UpdatePushSwitchCardButton();
+		break;
 	default:
 		break;
 	}
@@ -98,64 +121,53 @@ void UPVE::FSMUpdate()
 	
 }
 
+//选牌状态
 void UPVE::UpdateSelectCard()
-{
-
-	
+{	
 	//FName Card1ImageName = Card1->WidgetStyle.Normal.GetResourceName();
 
-
-	/*
-	if (Delay())
-	{
-	}
-	*/
+	UE_LOG(LogTemp, Warning, TEXT("CurrentState is SelecrCard"));
 
 	switch (NextCardButton)
 	{
 	case 1:
 		Card1->OnClicked.Broadcast();
+		++NextCardButton;
 		CurrentState = FSMState::PushPlayCardButton;
-
-		
 
 		break;
 	case 2:
 		Card2->OnClicked.Broadcast();
+		++NextCardButton;
 		CurrentState = FSMState::PushPlayCardButton;
-
-		
 
 		break;
 	case 3:
 		Card3->OnClicked.Broadcast();
+		++NextCardButton;
 		CurrentState = FSMState::PushPlayCardButton;
-
-		
 
 		break;
 	case 4:
 		Card4->OnClicked.Broadcast();
+		++NextCardButton;
 		CurrentState = FSMState::PushPlayCardButton;
-
-		
 
 		break;
 	case 5:
 		Card5->OnClicked.Broadcast();
+		++NextCardButton;
 		CurrentState = FSMState::PushPlayCardButton;
-
-		
 
 		break;
 	case 6:
 		Card6->OnClicked.Broadcast();
-		NextCardButton = 1;
-
-		
+		++NextCardButton;
+		CurrentState = FSMState::PushPlayCardButton;
 
 		break;
 	default:
+		CurrentState = FSMState::PushDisCardButton;
 		break;
 	}
 	
@@ -170,45 +182,139 @@ void UPVE::UpdateSelectCard()
 
 	//double FTime = FPlatformTime::Seconds();
 	
-	//延时
-
-	
-
 }
 
+
+//出牌状态
 void UPVE::UpdatePushPlayCardButton()
 {
-	if (Delay(1000))
+
+	UE_LOG(LogTemp, Warning, TEXT("CurrentState is PushPlayCardButton"));
+
+	if (Delay())
 	{
+
 		PlayCard->OnClicked.Broadcast();
-	}
-		
 
-	if (CurrentPlayerC == false)
-	{
-		++NextCardButton;
-		CurrentState = FSMState::SelectCard;
+		if (SwitchCard->bIsEnabled)
+		{
+			CurrentState = FSMState::PushSwitchCardButton;
+		}
+		else
+		{
+			CurrentState = FSMState::Wait;
+		}
+		
+		/*
+		if (CurrentPlayerC)
+		{
+			CurrentState = FSMState::Wait;			
+		}
+		else
+		{
+			++NextCardButton;
+			CurrentState = FSMState::SelectCard;
+		}
+		*/
+
 	}
 
-	else
-	{
-		CurrentState = FSMState::Wait;
-	}
-		
 }
 
+
+//等待状态
 void UPVE::UpdateWait()
 {
-	NextCardButton = 1;
+	UE_LOG(LogTemp, Warning, TEXT("CurrentState is Wait"));
 	if (!CurrentPlayerC)
 	{
 			CurrentState = FSMState::SelectCard;
 	}
+	else
+	{
+		NextCardButton = RemainCardNumber;
+	}
 }
 
 
+
+void UPVE::UpdatePushDisCardButton()
+{
+	UE_LOG(LogTemp, Warning, TEXT("CurrentState is PushDisCardButton"));
+
+	if (Delay())
+	{
+		switch (RemainCardNumber)
+		{
+		case 1:
+			Card1->OnClicked.Broadcast();
+			break;
+		case 2:
+			Card2->OnClicked.Broadcast();
+			break;
+		case 3:
+			Card3->OnClicked.Broadcast();
+			break;
+		case 4:
+			Card4->OnClicked.Broadcast();
+			break;
+		case 5:
+			Card5->OnClicked.Broadcast();
+			break;
+		case 6:
+			Card6->OnClicked.Broadcast();
+			break;
+		default:
+			break;
+		}
+
+			DisCard->OnClicked.Broadcast();
+			++RemainCardNumber;
+			CurrentState = FSMState::Wait;
+		
+		
+	}
+	
+}
+
+void UPVE::UpdatePushSwitchCardButton()
+{
+	UE_LOG(LogTemp, Warning, TEXT("CurrentState is PushSwitchCardButton"));
+
+	if (Delay())
+	{
+		switch (RemainCardNumber)
+		{
+		case 1:
+			Card1->OnClicked.Broadcast();
+			break;
+		case 2:
+			Card2->OnClicked.Broadcast();
+			break;
+		case 3:
+			Card3->OnClicked.Broadcast();
+			break;
+		case 4:
+			Card4->OnClicked.Broadcast();
+			break;
+		case 5:
+			Card5->OnClicked.Broadcast();
+			break;
+		case 6:
+			Card6->OnClicked.Broadcast();
+			break;
+		default:
+			break;
+		}
+
+			SwitchCard->OnClicked.Broadcast();
+			CurrentState = FSMState::Wait;
+		
+	}
+}
+
 //延时器
-bool UPVE::Delay(float DelayTime /*= 1500.0f*/)
+bool UPVE::Delay(float DelayTime /*= 1000.0f*/)
 {
 	if (time < DelayTime)
 	{

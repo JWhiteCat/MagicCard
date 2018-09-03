@@ -31,6 +31,8 @@ public:
 	class UButton* Card6;
 
 	class UButton* PlayCard;
+	class UButton* DisCard;
+	class UButton* SwitchCard;
 
 public:
 
@@ -41,6 +43,7 @@ public:
 	bool CurrentPlayerC = false;
 
 
+	
 	UFUNCTION(BlueprintCallable, Category = "Code")
 	void FSMUpdate();
 
@@ -50,25 +53,34 @@ public:
 
 	void UpdateWait();
 
+	void UpdatePushDisCardButton();
+
+	void UpdatePushSwitchCardButton();
+
 public:
 
 	float time = 0.0f;
 	int NextCardButton = 1;
+	int RemainCardNumber = 1;
 
 	enum FSMState
 	{
 		Wait,
+
 		SelectCard,
 
 		PushPlayCardButton,
 
+		PushDisCardButton,
+
+		PushSwitchCardButton
+
 	};
 	FSMState CurrentState = FSMState::Wait;
 
-	
+	bool Delay(float DelayTime = 1000.0f);
 
 
-	bool Delay(float DelayTime = 1500.0f);
 
 	/*获取蓝图中的变量
 	class UPVE* PVE;
